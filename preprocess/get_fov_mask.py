@@ -1,5 +1,6 @@
-from skimage import io, color
+from skimage import io, color, measure
 from scipy import ndimage, stats
+from numpy import nan
 
 def get_fov_mask(image_rgb, threshold):
     illuminant = "D50" # default illuminant value from matlab implementation
@@ -13,13 +14,16 @@ def get_fov_mask(image_rgb, threshold):
 
     # fill holes in the mask
     mask = ndimage.binary_fill_holes(mask)
-    mask = ndimage.filters.median_filter(mask, size=(5,5))
+    mask = ndimage.filters.median_filter(mask, size=(5, 5))
 
     # get connected components
-    connected_components, labels_count = ndimage.label(mask)
+    connected_components = measure.label(mask).astype(float)
+
+    # replace background found in [0][0] to nan so mode skips it
+    connected_components[connected_components == mask[0][0]] = nan
 
     # get largest connected component (== mode of the image)
-    largest_component_label = stats.mode(connected_components, axis=None)[0]
+    largest_component_label = stats.mode(connected_components, axis=None, nan_policy='omit')[0]
 
     # use the modal value of the labels as the final mask
     mask = connected_components == largest_component_label
