@@ -26,7 +26,9 @@ def main(root_path, mask_threshold=0.01):
     for file_i in listdir(input_directory):
         if path.isfile(path.join(input_directory, file_i)):
             create_mask(output_directory, input_directory, file_i, mask_threshold)
-            print('.')
+            print('.', end="", flush=True)
+
+    print()
 
 def usage():
     print('ERROR: Usage: main.py <path-to-directory-of-image-to-be-processed> <mask-threshold>')
