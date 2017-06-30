@@ -1,12 +1,16 @@
 from skimage import io, color, measure, filters
 from scipy import ndimage
 import numpy as np
+from replace_out_of_fov_pixels import replace_out_of_fov_pixels
 
 def equalize_fundus_image_intensities(image_rgb, fov_mask):
 
+    # replace out of fov pixels with the average intensity
+    image_rgb = replace_out_of_fov_pixels(image_rgb, fov_mask)
+
     # these constants were assigned according to van Grinsven et al. 2016, TMI
-    alpha = 4.0
-    beta = -4.0
+    alpha = 2.0
+    beta = -2.0
     gamma = 128.0
 
     # get image size
