@@ -11,7 +11,7 @@ def create_mask(output_directory, input_directory, filename, threshold):
 
     io.imsave(path.join(output_directory, output_filename), mask)
 
-def main(root_path, mask_threshold=0.01):
+def main(root_path, output_path, mask_threshold=0.01):
     """
     This function runs the preprocessing filters to all images inside root_path/images
     and creates a separate folder in root_path/masks with the resulting FOVs.
@@ -31,15 +31,15 @@ def main(root_path, mask_threshold=0.01):
     print()
 
 def usage():
-    print('ERROR: Usage: main.py <path-to-directory-of-image-to-be-processed> <mask-threshold>')
+    print('ERROR: Usage: main.py <path-to-directory-of-image-to-be-processed> <output-path> <mask-threshold>')
 
 import sys
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 3:
         usage()
         exit()
-    elif len(sys.argv) == 2:
-        main(sys.argv[1])
+    elif len(sys.argv) == 3:
+        main(sys.argv[1], sys.argv[2])
     else:
-        main(sys.argv[1], float(sys.argv[2]))
+        main(sys.argv[1], sys.argv[2], float(sys.argv[3]))
