@@ -13,7 +13,7 @@ def equalize_fundus_image_intensities(image_rgb, fov_mask):
     image_size = image_rgb.shape
 
     # initialize the output image with the same size that the input image
-    equalized_image = np.zeros(image_size), dtype=np.uint8)
+    equalized_image = np.zeros((image_size), dtype=np.uint8)
 
     # estimate the sigma parameter using the scaling approach by
     # Orlando et al. 2017, arXiv
