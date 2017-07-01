@@ -4,26 +4,7 @@ from get_fov_mask import get_fov_mask
 from crop_fov_mask import crop_fov_mask
 from equalize_fundus_image_intensities import equalize_fundus_image_intensities
 
-def create_mask(output_directory, input_directory, filename, threshold):
-    """
-    This function takes an input image, generate the FOV mask and saves the
-    image in the output folder.
-    """
-    # read the image
-    image = io.imread(path.join(input_directory, filename))
-    # generate the fov mask
-    mask = get_fov_mask(image, threshold).astype(float)
-    # prepare output file name for the mask
-    output_filename = filename[:filename.rfind('.')] + '.png'
-    # save the mask
-    io.imsave(path.join(output_directory, output_filename), mask)
 
-<<<<<<< HEAD
-
-
-
-=======
->>>>>>> e305f10fccdeb65895570470641d183514d71660
 def main(root_path, output_path, mask_threshold=0.01):
     """
     This function runs the preprocessing filters to all images inside root_path/images
@@ -85,12 +66,8 @@ def main(root_path, output_path, mask_threshold=0.01):
 
 def usage():
     print('ERROR: Usage: main.py <path-to-directory-of-image-to-be-processed> <output-path> <mask-threshold>')
-<<<<<<< HEAD
 
 
-
-=======
->>>>>>> e305f10fccdeb65895570470641d183514d71660
 
 import sys
 

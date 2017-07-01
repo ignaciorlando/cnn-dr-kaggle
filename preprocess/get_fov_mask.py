@@ -32,11 +32,7 @@ def get_fov_mask(image_rgb, threshold):
 
 def main(image_path, threshold):
     image = io.imread(image_path)
-<<<<<<< HEAD
     mask = get_fov_mask(image, threshold)
-=======
-    mask = get_fov_mask(image, threshold).astype(bool)
->>>>>>> e305f10fccdeb65895570470641d183514d71660
 
     io.imsave('mask.png', mask)
 
