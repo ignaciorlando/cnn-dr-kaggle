@@ -18,9 +18,12 @@ def create_mask(output_directory, input_directory, filename, threshold):
     # save the mask
     io.imsave(path.join(output_directory, output_filename), mask)
 
+<<<<<<< HEAD
 
 
 
+=======
+>>>>>>> e305f10fccdeb65895570470641d183514d71660
 def main(root_path, output_path, mask_threshold=0.01):
     """
     This function runs the preprocessing filters to all images inside root_path/images
@@ -82,9 +85,12 @@ def main(root_path, output_path, mask_threshold=0.01):
 
 def usage():
     print('ERROR: Usage: main.py <path-to-directory-of-image-to-be-processed> <output-path> <mask-threshold>')
+<<<<<<< HEAD
 
 
 
+=======
+>>>>>>> e305f10fccdeb65895570470641d183514d71660
 
 import sys
 
