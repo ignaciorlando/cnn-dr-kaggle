@@ -6,7 +6,7 @@ def get_fov_mask(image_rgb, threshold):
     illuminant = "D50" # default illuminant value from matlab implementation
 
     # format: [H, W, #channels]
-    image_lab = color.rgb2lab(image_rgb, illuminant)
+    image_lab = color.rgb2lab(image_rgb)
 
     image_lab[:, :, 0] /= 100.0
 
@@ -28,11 +28,11 @@ def get_fov_mask(image_rgb, threshold):
     # use the modal value of the labels as the final mask
     mask = connected_components == largest_component_label
 
-    return mask
+    return mask.astype(float)
 
 def main(image_path, threshold):
     image = io.imread(image_path)
-    mask = get_fov_mask(image, threshold).astype(float)
+    mask = get_fov_mask(image, threshold)
 
     io.imsave('mask.png', mask)
 
