@@ -10,7 +10,7 @@ def crop_fov_mask(image_rgb, fov_mask):
     cropped_fov = fov_mask[rmin:rmax, cmin:cmax]
     cropped_image = image_rgb[rmin:rmax, cmin:cmax, :]
 
-    return cropped_image, cropped_fov
+    return cropped_image.astype(np.uint8), cropped_fov
 
 def main(image_path, fov_mask_path):
     image = io.imread(image_path)

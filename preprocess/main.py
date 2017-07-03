@@ -1,8 +1,9 @@
-from skimage import io
+from skimage import io, transform
 from os import listdir, path, makedirs
 from get_fov_mask import get_fov_mask
 from crop_fov_mask import crop_fov_mask
 from equalize_fundus_image_intensities import equalize_fundus_image_intensities
+import numpy as np
 
 
 def main(root_path, output_path, mask_threshold=0.01):
@@ -48,15 +49,21 @@ def main(root_path, output_path, mask_threshold=0.01):
 
             # crop the images and the masks around the FOV
             print('\tCropping around the FOV...', end="", flush=True)
-            image, mask = crop_fov_mask(image, mask)
-            # save the cropped mask
-            io.imsave(path.join(output_directory_masks, mask_filename), mask)
+            preprocessed_image, mask = crop_fov_mask(image, mask)
+
+            # downsize the image and the mask
+            print('\Resizing the image...', end="", flush=True)
+            preprocessed_image = transform.resize(preprocessed_image, (512, 512, 3), preserve_range=True).astype(np.uint8)
+            mask = transform.resize(mask, (512, 512), order=0, preserve_range=True)
 
             # apply contrast equalization on the image
             print('\tPreprocessing the image...', end="", flush=True)
-            preprocessed_image = equalize_fundus_image_intensities(image, mask)
-            # save the preprocessed mask
+            preprocessed_image = equalize_fundus_image_intensities(preprocessed_image, mask)
+
+            # save the preprocessed image
             io.imsave(path.join(output_directory_images, file_i), preprocessed_image)
+            # save the cropped mask
+            io.imsave(path.join(output_directory_masks, mask_filename), mask)
 
             #print('.', end="", flush=True)
 
