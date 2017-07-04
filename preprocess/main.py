@@ -17,7 +17,7 @@ def main(root_path, output_path, first_image=0, last_image=None, overwrite=False
         assert (first_image < last_image), 'first_image (%d) is higher than last_image (%d)' % (first_image, last_image)
 
     # By default, we assume that the input folder has a folder inside namely 'images'
-    input_directory = path.join(root_path, 'images')
+    input_directory = root_path#path.join(root_path, 'images')
 
     # The output folders will be:
     # - images: will contain the preprocessed images
