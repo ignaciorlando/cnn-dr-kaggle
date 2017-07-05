@@ -25,11 +25,19 @@ def main(root_path, output_path, first_image=0, last_image=None, overwrite=False
     # - masks: will contain the FOV masks
     output_directory_masks = path.join(output_path, 'masks')
 
+    # There will be an additional folder to save images that blow everything up
+    error_output_directory_images = path.join(output_path, 'problematic-images')
+    error_output_directory_masks = path.join(output_path, 'problematic-masks')
+
     # if those folders do not exist, create them
     if not path.exists(output_directory_images):
         makedirs(output_directory_images)
     if not path.exists(output_directory_masks):
         makedirs(output_directory_masks)
+    if not path.exists(error_output_directory_images):
+        makedirs(error_output_directory_images)
+    if not path.exists(error_output_directory_masks):
+        makedirs(error_output_directory_masks)
 
     # get all the files in the folder
     all_filenames = listdir(input_directory)
@@ -70,23 +78,32 @@ def main(root_path, output_path, first_image=0, last_image=None, overwrite=False
                 # generate the fov mask
                 mask = get_fov_mask(image, mask_threshold)
 
-                # crop the images and the masks around the FOV
-                print('\tCropping around the FOV...', end="", flush=True)
-                preprocessed_image, mask = crop_fov_mask(image, mask)
+                try:
 
-                # downsize the image and the mask
-                print('\Resizing the image...', end="", flush=True)
-                preprocessed_image = transform.resize(preprocessed_image, (512, 512, 3), preserve_range=True).astype(np.uint8)
-                mask = transform.resize(mask, (512, 512), order=0, preserve_range=True)
+                    # crop the images and the masks around the FOV
+                    print('\tCropping around the FOV...', end="", flush=True)
+                    preprocessed_image, mask = crop_fov_mask(image, mask)
 
-                # apply contrast equalization on the image
-                print('\tPreprocessing the image...', end="", flush=True)
-                preprocessed_image = equalize_fundus_image_intensities(preprocessed_image, mask)
+                    # downsize the image and the mask
+                    print('\Resizing the image...', end="", flush=True)
+                    preprocessed_image = transform.resize(preprocessed_image, (512, 512, 3), preserve_range=True).astype(np.uint8)
+                    mask = transform.resize(mask, (512, 512), order=0, preserve_range=True)
 
-                # save the preprocessed image
-                io.imsave(path.join(output_directory_images, file_i), preprocessed_image)
-                # save the cropped mask
-                io.imsave(path.join(output_directory_masks, mask_filename), mask)
+                    # apply contrast equalization on the image
+                    print('\tPreprocessing the image...', end="", flush=True)
+                    preprocessed_image = equalize_fundus_image_intensities(preprocessed_image, mask)
+
+                    # save the preprocessed image
+                    io.imsave(path.join(output_directory_images, file_i), preprocessed_image)
+                    # save the cropped mask
+                    io.imsave(path.join(output_directory_masks, mask_filename), mask)
+
+                except Exception:
+
+                    # save the problematic image
+                    io.imsave(path.join(output_directory_images, file_i), image)
+                    # save the problematic mask
+                    io.imsave(path.join(output_directory_masks, mask_filename), mask)
 
             #print('.', end="", flush=True)
 
