@@ -1,6 +1,6 @@
 from skimage import io, color, measure
 from scipy import ndimage, stats
-from numpy import nan
+from numpy import nan, unique
 
 def get_fov_mask(image_rgb, threshold):
     illuminant = "D50" # default illuminant value from matlab implementation
@@ -27,6 +27,12 @@ def get_fov_mask(image_rgb, threshold):
 
     # use the modal value of the labels as the final mask
     mask = connected_components == largest_component_label
+
+    # check if the resulting image is all 0s or all 1s
+    minimum_threshold = 80
+    while len(unique(mask))==1:
+        minimum_threshold = minimum_threshold - 20
+        mask = (image_rgb[:, :, 0] + image_rgb[:, :, 1] + image_rgb[:, :, 2]) > minimum_threshold
 
     return mask.astype(float)
 

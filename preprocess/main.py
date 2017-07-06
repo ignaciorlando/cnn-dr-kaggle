@@ -85,7 +85,7 @@ def main(root_path, output_path, first_image=0, last_image=None, overwrite=False
                     preprocessed_image, mask = crop_fov_mask(image, mask)
 
                     # downsize the image and the mask
-                    print('\Resizing the image...', end="", flush=True)
+                    print('\tResizing the image...', end="", flush=True)
                     preprocessed_image = transform.resize(preprocessed_image, (512, 512, 3), preserve_range=True).astype(np.uint8)
                     mask = transform.resize(mask, (512, 512), order=0, preserve_range=True)
 
@@ -101,9 +101,9 @@ def main(root_path, output_path, first_image=0, last_image=None, overwrite=False
                 except Exception:
 
                     # save the problematic image
-                    io.imsave(path.join(output_directory_images, file_i), image)
+                    io.imsave(path.join(error_output_directory_images, file_i), image)
                     # save the problematic mask
-                    io.imsave(path.join(output_directory_masks, mask_filename), mask)
+                    io.imsave(path.join(error_output_directory_masks, mask_filename), mask)
 
             #print('.', end="", flush=True)
 
