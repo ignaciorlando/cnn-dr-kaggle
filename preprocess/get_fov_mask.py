@@ -7,12 +7,12 @@ def get_fov_mask(image_rgb, threshold):
 
     # format: [H, W, #channels]
     image_lab = color.rgb2lab(image_rgb)
-
+    # normalize the luminosity plane
     image_lab[:, :, 0] /= 100.0
-
+    # threshold the plane at the given threshold
     mask = image_lab[:, :, 0] >= threshold
 
-    # fill holes in the mask
+    # fill holes in the resulting mask
     mask = ndimage.binary_fill_holes(mask)
     mask = ndimage.filters.median_filter(mask, size=(5, 5))
 
@@ -27,12 +27,6 @@ def get_fov_mask(image_rgb, threshold):
 
     # use the modal value of the labels as the final mask
     mask = connected_components == largest_component_label
-
-    # check if the resulting image is all 0s or all 1s
-    minimum_threshold = 80
-    while len(unique(mask))==1:
-        minimum_threshold = minimum_threshold - 20
-        mask = (image_rgb[:, :, 0] + image_rgb[:, :, 1] + image_rgb[:, :, 2]) > minimum_threshold
 
     return mask.astype(float)
 
