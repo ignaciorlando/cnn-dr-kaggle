@@ -4,7 +4,9 @@ from os import path, makedirs
 sys.path.append(path.dirname(path.abspath(__file__)) + "/..")
 
 from core.models import vgg16
-from core.augmentation import data_augmentation
+from core.augmentation import data_augmentation, no_augmentation
+from keras.callbacks import TensorBoard, CSVLogger
+from shutil import rmtree
 
 def train(train_data_path, validation_data_path, output_path, image_shape=(512, 512, 3), batch_size=32):
 
@@ -16,35 +18,57 @@ def train(train_data_path, validation_data_path, output_path, image_shape=(512, 
 
     # SET UP THE TRAINING AND VALIDATION DATA GENERATION POLICIES
 
+    ## Get a training data generation policy
+    #train_data_generator = data_augmentation.data_augmentation('training')
+    ## And a validation data policy too
+    #validation_data_generator = data_augmentation.data_augmentation('validation')
+
     # Get a training data generation policy
-    train_data_generator = data_augmentation.data_augmentation('training')
+    train_data_generator = no_augmentation.data_augmentation('training')
     # And a validation data policy too
-    validation_data_generator = data_augmentation.data_augmentation('validation')
+    validation_data_generator = no_augmentation.data_augmentation('validation')
 
     train_generator = train_data_generator.flow_from_directory(
         train_data_path,
         target_size=(image_shape[0], image_shape[1]),
         batch_size=batch_size,
+        classes=['0', '1'],
         class_mode='binary')  # since we use binary_crossentropy loss, we need binary labels
 
     # this is a similar generator, for validation data
     validation_generator = validation_data_generator.flow_from_directory(
         validation_data_path,
         target_size=(image_shape[0], image_shape[1]),
-        batch_size=32,
+        batch_size=batch_size,
+        classes=['0', '1'],
         class_mode='binary')
+
+    #class_weights = {0 : 1.,
+    #                 1 : 82./18.}
+
+    # initialize callbacks
+    tensorboard_path = path.join(output_path, 'tensorboard')
+    if path.exists(tensorboard_path):
+        rmtree(tensorboard_path)
+    makedirs(tensorboard_path)
+    tensorboad_cb = TensorBoard(log_dir=tensorboard_path)
+
 
     # TRAIN THE MODEL
     model.fit_generator(
         train_generator,
-        samples_per_epoch=2016,
-        nb_epoch=50,
+        steps_per_epoch= 900 // batch_size,
+        epochs=150,
         validation_data=validation_generator,
-        nb_val_samples=256,
-        class_weight=[0.18, 0.82])
+        validation_steps= 98 // batch_size,
+        #class_weight=class_weights,
+        callbacks=[tensorboad_cb])
 
     # SAVE THE WEIGHTS
     model.save_weights(path.join(output_path, weights_filename))  # always save your weights after training or during training
+
+
+
 
 def main(data_path, output_path, image_shape, batch_size):
 
