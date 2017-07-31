@@ -45,11 +45,7 @@ def data_augmentation(data_type):
 def main(image_path, data_type):
     image = io.imread(image_path)
 
-    print(image.shape)
-
     image = image.reshape((1,) + image.shape)
-
-    print(image.shape)
 
     data_generator = data_augmentation(data_type)
 
