@@ -62,10 +62,10 @@ def main(root_path, output_path, first_image=0, last_image=None, overwrite=False
             # move the counter of images
             current_image = current_image + 1
             # prepare output file name for the mask
-            mask_filename = file_i[:file_i.rfind('.')] + '.png'
+            png_filename = file_i[:file_i.rfind('.')] + '.png'
 
             # if we have to overwrite or if we don't by the mask doesn't exist
-            if overwrite or (not overwrite and not path.exists(path.join(output_directory_masks, mask_filename))):
+            if overwrite or (not overwrite and not path.exists(path.join(output_directory_masks, png_filename))):
 
                 print(file_i)
                 print('Processing image ' + str(current_image) + '/' + str(num_images), end="", flush=True)
@@ -94,16 +94,16 @@ def main(root_path, output_path, first_image=0, last_image=None, overwrite=False
                     preprocessed_image = equalize_fundus_image_intensities(preprocessed_image, preprocessed_mask)
 
                     # save the preprocessed image
-                    io.imsave(path.join(output_directory_images, file_i), preprocessed_image)
+                    io.imsave(path.join(output_directory_images, png_filename), preprocessed_image)
                     # save the cropped mask
-                    io.imsave(path.join(output_directory_masks, mask_filename), preprocessed_mask)
+                    io.imsave(path.join(output_directory_masks, png_filename), preprocessed_mask)
 
                 except Exception:
 
                     # save the problematic image
-                    io.imsave(path.join(error_output_directory_images, file_i), image)
+                    io.imsave(path.join(error_output_directory_images, png_filename), image)
                     # save the problematic mask
-                    io.imsave(path.join(error_output_directory_masks, mask_filename), mask)
+                    io.imsave(path.join(error_output_directory_masks, png_filename), mask)
 
             #print('.', end="", flush=True)
 
