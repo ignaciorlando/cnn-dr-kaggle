@@ -57,10 +57,10 @@ def train(train_data_path, validation_data_path, output_path, image_shape=(512, 
     # TRAIN THE MODEL
     model.fit_generator(
         train_generator,
-        steps_per_epoch= 31000 // batch_size,
+        steps_per_epoch= train_generator.samples // batch_size,
         epochs=150,
         validation_data=validation_generator,
-        validation_steps= 3000 // batch_size,
+        validation_steps= validation_generator // batch_size,
         #class_weight=class_weights,
         callbacks=[tensorboad_cb])
 
