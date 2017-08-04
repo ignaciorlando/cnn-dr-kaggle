@@ -33,9 +33,10 @@ def build(image_size=None):
 
     model = Model(inputs=x, outputs=y)
 
-    sgd = SGD(lr=0.005, decay=1e-6, momentum=0.9, nesterov=True)
-    #rms = rmsprop(lr=0.05, decay=1e-6)
-    #adam = Adam(lr=1e-2)
-
-    model.compile(optimizer=sgd, loss = 'binary_crossentropy', metrics=[precision, recall, f1])
+    """
+    print("Writing model into json file")
+    text_file = open("vgg16.json", "w")
+    text_file.write(model.to_json())
+    text_file.close()
+    """
     return model
