@@ -34,15 +34,15 @@ def recall(y_true, y_pred):
 def f1(y_true, y_pred):
     pr = precision(y_true, y_pred)
     re = recall(y_true, y_pred)
-    return 2*((pr*re)/(pr+re))
+    return 2*((pr * re)/(pr + re + K.epsilon()))
 
 
 
 
 def mcc(y_true, y_pred):
     """ Matthews Correlation Coefficient.
-    
-    
+
+
     """
     y_pred_pos = K.round(K.clip(y_pred, 0, 1))
     y_pred_neg = 1 - y_pred_pos
