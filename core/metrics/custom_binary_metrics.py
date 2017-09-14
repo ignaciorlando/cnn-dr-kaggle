@@ -1,6 +1,19 @@
 
 import keras.backend as K
 
+def tp(y_true, y_pred):
+    return K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+
+def fp(y_true, y_pred):
+    return K.sum(K.round(K.clip(y_pred, 0, 1))) - K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+
+def fn(y_true, y_pred):
+    return K.sum(K.round(K.clip(y_true, 0, 1))) - K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+
+# TODO: def tn(y_true, y_pred):
+
+
+
 def precision(y_true, y_pred):
     """Precision metric.
 
@@ -60,7 +73,7 @@ def mcc(y_true, y_pred):
     denominator = K.sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
 
     return numerator / (denominator + K.epsilon())
-
+    
 
 
 

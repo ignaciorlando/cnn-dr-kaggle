@@ -8,6 +8,8 @@ from core.augmentation import data_augmentation, no_augmentation
 from keras.callbacks import TensorBoard, CSVLogger
 from shutil import rmtree
 
+import keras.backend as K
+
 def identify_classes(input_data_path):
     # TODO: deduce this from input_data_path directory structure
     classes = ['0', '1']
@@ -19,6 +21,7 @@ def train(
     loss,
     metrics,
     optimizer,
+    custom_callbacks,
     data_augmentation_policy,
     input_data_path,
     output_path,
@@ -69,12 +72,12 @@ def train(
     # TRAIN THE MODEL
     model.fit_generator(
         train_generator,
-        steps_per_epoch= train_generator.samples // batch_size,
+        steps_per_epoch=train_generator.samples // batch_size,
         epochs=150,
         validation_data=validation_generator,
         validation_steps= validation_generator.samples // batch_size,
         class_weight=class_weights,
-        callbacks=[tensorboad_cb])
+        callbacks=custom_callbacks + [tensorboad_cb])
 
     # SAVE THE WEIGHTS
     model.save_weights(path.join(output_path, weights_filename))

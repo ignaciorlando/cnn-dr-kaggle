@@ -2,7 +2,8 @@ import sys
 from os import path, makedirs
 # Import from sibling directory ..\api
 sys.path.append(path.dirname(path.abspath(__file__)) + "/..")
-from core.metrics.custom_binary_metrics import precision, recall, f1
+from core.metrics.custom_binary_metrics import tp, fp, fn
+from core.metrics.Confusion_Matrix import Confusion_Matrix
 
 from core.models import vgg16
 from core.training import trainer
@@ -15,11 +16,14 @@ def test(input_data_path, output_path, image_shape, batch_size):
 
     sgd = SGD(lr=0.005, decay=1e-6, momentum=0.9, nesterov=True)
 
+    conf_mat = Confusion_Matrix()
+
     trainer.train(
         model = model,
         loss = 'binary_crossentropy',
-        metrics = [precision, recall, f1],
+        metrics = [tp, fp, fn],
         optimizer = sgd,
+        custom_callbacks = [conf_mat],
         data_augmentation_policy = no_augmentation,
         input_data_path = input_data_path,
         output_path = output_path,
