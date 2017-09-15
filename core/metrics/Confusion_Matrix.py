@@ -8,7 +8,7 @@ class Confusion_Matrix(Callback):
 
     def on_epoch_end(self, epoch, logs={}):
 
-        print(logs)
+        #print(logs)
         tp = logs["val_tp"]
         fp = logs["val_fp"]
         fn = logs["val_fn"]
