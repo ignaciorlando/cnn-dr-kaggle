@@ -62,7 +62,7 @@ def train(
         class_mode=class_mode)
 
     # initialize callbacks
-    tensorboard_path = path.join(output_path, 'tensorboard')
+    tensorboard_path = output_path
     if path.exists(tensorboard_path):
         rmtree(tensorboard_path)
     makedirs(tensorboard_path)
