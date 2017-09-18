@@ -57,7 +57,7 @@ def load_pickle_subset(root_dir_path, image_count=10000, image_size=512):
             # Iterate for each of the images
             for j in range(0, number_of_images_to_copy[i]):
                 # Read the image and copy it to the array
-                dataset[current_image, :, :, :] = misc.imresize(ndimage.imread(path.join(current_folder, image_filenames[i])), (image_size, image_size, 3))
+                dataset[current_image, :, :, :] = misc.imresize(ndimage.imread(path.join(current_folder, image_filenames[j])), (image_size, image_size, 3))
                 current_image = current_image + 1
             # Assign the labels
             labels[iterator_labels:number_of_images_to_copy[i]-1] = int(dif_classes[i])

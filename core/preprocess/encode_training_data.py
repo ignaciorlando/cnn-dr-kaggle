@@ -66,6 +66,7 @@ def encode_training_data(root_dir_path, csvfile, output_path, class_threshold=No
             print('Processing image ' + str(current_image_number) + '/' + str(num_images) + '\n', end="", flush=True)
         current_image_number = current_image_number + 1
 
+
 def initialize_dictionary_from_file(filename):
     with open(filename, mode='r', newline='\n') as infile:
         reader = csv.reader(infile, delimiter=',')
