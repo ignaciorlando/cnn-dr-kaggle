@@ -31,8 +31,8 @@ def data_augmentation(data_type):
             fill_mode="constant", cval=0.0, # TODO: try this with "reflect"
             horizontal_flip=True,
             vertical_flip=True, # TODO: try this with False
-            rescale=1./255,
-            preprocessing_function=lambda image: zoom_image(image, [1.0, 1.2])
+            rescale=1./255#,
+            #preprocessing_function=lambda image: zoom_image(image, [1.0, 1.2])
             )
     else: # data_type == "validation" or data_type == "test"
         # datagen will be only rescale
