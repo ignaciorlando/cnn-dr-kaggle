@@ -25,12 +25,12 @@ def data_augmentation(data_type):
         datagen = ImageDataGenerator(
             # For more information about these parameters
             # visit: https://keras.io/preprocessing/image/
-            #featurewise_center=True,
-            #featurewise_std_normalization=True,
+            featurewise_center=True,
+            featurewise_std_normalization=True,
             #zoom_range=0.5, # up to 25% zoom in
-            fill_mode="constant", cval=0.0, # TODO: try this with "reflect"
-            horizontal_flip=True,
-            vertical_flip=True, # TODO: try this with False
+            #fill_mode="constant", cval=0.0, # TODO: try this with "reflect"
+            #horizontal_flip=True,
+            #vertical_flip=True, # TODO: try this with False
             rescale=1./255#,
             #preprocessing_function=lambda image: zoom_image(image, [1.0, 1.2])
             )

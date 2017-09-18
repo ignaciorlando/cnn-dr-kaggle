@@ -4,6 +4,7 @@ from os import path, makedirs
 sys.path.append(path.dirname(path.abspath(__file__)) + "/..")
 
 from core.models import vgg16
+from core.preprocess import load_pickle_subset
 from core.augmentation import data_augmentation, no_augmentation
 from keras.callbacks import TensorBoard, CSVLogger
 from shutil import rmtree
@@ -34,10 +35,9 @@ def train(
     if not path.exists(output_path):
         makedirs(output_path)
 
+    # Compile the model
     model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
-
-    weights_filename = model.name + '.h5'
-
+    # Identify the classes
     classes, class_mode, class_weights = identify_classes(input_data_path)
 
     ### SET UP THE NETWORK ARCHITECTURE
@@ -68,6 +68,10 @@ def train(
     makedirs(tensorboard_path)
     tensorboad_cb = TensorBoard(log_dir=tensorboard_path)
 
+    # load pickles for computing statistics
+    X_subset, y_labels = load_pickle_subset.load_pickle_subset(path.join(input_data_path, 'training'), 10000, image_shape[0])
+    # compute statistics for normalization
+    train_data_generator.fit(X_subset)
 
     # TRAIN THE MODEL
     model.fit_generator(
@@ -80,7 +84,7 @@ def train(
         callbacks=custom_callbacks + [tensorboad_cb])
 
     # SAVE THE WEIGHTS
-    model.save_weights(path.join(output_path, weights_filename))
+    model.save_weights(path.join(output_path, model.name + '.h5'))
 
 """
 def main(data_path, output_path, image_shape, batch_size):
