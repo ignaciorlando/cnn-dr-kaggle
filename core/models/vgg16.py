@@ -12,24 +12,46 @@ from keras.layers import Dense, Flatten, Dropout, Input, BatchNormalization, Act
 from keras import metrics
 
 
-def build(image_size=None):
-    image_size = image_size or (512, 512)
+def build(image_size, config):
+
+    # reorder according to backend
     if K.image_dim_ordering() == 'th':
         input_shape = (3,) + image_size
     else:
         input_shape = image_size + (3, )
+
+    # get batch normalization from config
+    batch_normalizations = config['batch_normalization'].split()
+    # get dropout probability
+    dropout_prob = float(config['dropout'])
+
+    # initialize VGG-16
     model = vgg16.VGG16(include_top=False, input_tensor=Input(input_shape), weights=None)
 
     x = model.input
     y = model.output
     y = Flatten()(y)
-    y = BatchNormalization()(y)
-    y = Dense(4096, activation='relu')(y)
-    y = Dropout(.5)(y)
-    y = Dense(4096, activation='relu')(y)
-    y = Dropout(.5)(y)
+    #y = BatchNormalization(axis=1)(y)
+
+    # first fully connected module
+    y = Dense(4096)(y)
+    if 'fc' in batch_normalizations:
+        y = BatchNormalization(axis=1)(y)
+    y = Activation('relu')(y)
+    if dropout_prob > 0.0:
+        y = Dropout(dropout_prob)(y)
+
+    # second fully connected module
+    y = Dense(4096)(y)
+    if 'fc' in batch_normalizations:
+        y = BatchNormalization(axis=1)(y)
+    y = Activation('relu')(y)
+    if dropout_prob > 0.0:
+        y = Dropout(dropout_prob)(y)
+    
+    # prediction
     y = Dense(1)(y)
-    y = Activation('sigmoid')(y)
+    y = Activation(config['prediction_activation'])(y)
 
     model = Model(inputs=x, outputs=y)
 
