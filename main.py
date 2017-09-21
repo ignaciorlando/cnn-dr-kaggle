@@ -14,6 +14,7 @@ from core.augmentation import data_augmentation
 from core.preprocess import load_pickle_subset
 from keras.callbacks import TensorBoard, CSVLogger
 from shutil import rmtree
+from numpy import random
 import ntpath
 
 import keras.backend as K
@@ -33,6 +34,10 @@ def identify_classes(input_data_path, use_weight):
 
 def main(input_data_path, output_path, config_file):
     
+    # fix random seed for reproducibility
+    seed = 7
+    random.seed(seed)
+
     # append the name of the configuration file to the output path
     output_path = path.join(output_path, ntpath.basename(config_file)[:-4])
 
