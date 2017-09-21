@@ -23,11 +23,17 @@ def build(image_size=None):
     x = model.input
     y = model.output
     y = Flatten()(y)
-    y = BatchNormalization()(y)
-    y = Dense(4096, activation='relu')(y)
+    
+    y = Dense(4096)(y)
+    y = BatchNormalization(axis=1)(y)
+    y = Activation('relu')(y)
     y = Dropout(.5)(y)
-    y = Dense(4096, activation='relu')(y)
+    
+    y = Dense(4096)(y)
+    y = BatchNormalization(axis=1)(y)
+    y = Activation('relu')(y)
     y = Dropout(.5)(y)
+
     y = Dense(1)(y)
     y = Activation('sigmoid')(y)
 

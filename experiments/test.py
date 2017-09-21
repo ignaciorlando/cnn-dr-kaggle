@@ -12,7 +12,7 @@ from core.augmentation import data_augmentation, no_augmentation
 
 
 def test(input_data_path, output_path, image_shape, batch_size):
-    model = vgg16.build((310, 310))
+    model = vgg16.build((image_shape[0], image_shape[1]))
 
     sgd = SGD(lr=0.005, decay=1e-6, momentum=0.9, nesterov=True)
 

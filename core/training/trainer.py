@@ -5,7 +5,7 @@ sys.path.append(path.dirname(path.abspath(__file__)) + "/..")
 
 from core.models import vgg16
 from core.augmentation import data_augmentation, no_augmentation
-from keras.callbacks import TensorBoard, CSVLogger
+from keras.callbacks import TensorBoard, CSVLogger, ModelCheckpoint
 from shutil import rmtree
 
 import keras.backend as K
@@ -34,10 +34,13 @@ def train(
     if not path.exists(output_path):
         makedirs(output_path)
 
+    # compile the model
     model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
 
-    weights_filename = model.name + '.h5'
+    # print the model
+    model.summary()
 
+    # identify classes
     classes, class_mode, class_weights = identify_classes(input_data_path)
 
     ### SET UP THE NETWORK ARCHITECTURE
@@ -62,12 +65,15 @@ def train(
         class_mode=class_mode)
 
     # initialize callbacks
-    tensorboard_path = path.join(output_path, 'tensorboard')
+    # 1. tensorboard callback
+    tensorboard_path = path.join(output_path)
     if path.exists(tensorboard_path):
         rmtree(tensorboard_path)
     makedirs(tensorboard_path)
-    tensorboad_cb = TensorBoard(log_dir=tensorboard_path)
-
+    tensorboad_cb = TensorBoard(log_dir=tensorboard_path, write_images=False)
+    # 2. checkpoint callback
+    checkpoint_path = path.join(output_path)
+    checkpointer_cb = ModelCheckpoint(filepath=path.join(checkpoint_path, 'weights.hdf5'), verbose=1, save_best_only=True)
 
     # TRAIN THE MODEL
     model.fit_generator(
@@ -77,41 +83,4 @@ def train(
         validation_data=validation_generator,
         validation_steps= validation_generator.samples // batch_size,
         class_weight=class_weights,
-        callbacks=custom_callbacks + [tensorboad_cb])
-
-    # SAVE THE WEIGHTS
-    model.save_weights(path.join(output_path, weights_filename))
-
-"""
-def main(data_path, output_path, image_shape, batch_size):
-
-    train_data_path = path.join(data_path, 'training')
-    validation_data_path = path.join(data_path, 'validation')
-
-    train(train_data_path, validation_data_path, output_path, image_shape, batch_size)
-
-def usage():
-    print('ERROR: Usage: vgg16.py <data_path> <output_path> [--image_shape] [--batch_size]')
-
-import argparse
-import sys
-
-if __name__ == '__main__':
-
-    if len(sys.argv) < 3:
-        usage()
-        exit()
-    else:
-        # create an argument parser to control the input parameters
-        parser = argparse.ArgumentParser()
-        parser.add_argument("data_path", help="directory with training/validation directories", type=str)
-        parser.add_argument("output_path", help="directory to save the models", type=str)
-        parser.add_argument("-ih", "--image_height", help="input image height", type=int, default=512)
-        parser.add_argument("-iw", "--image_width", help="input image width", type=int, default=512)
-        parser.add_argument("-ic", "--channels", help="input image channels", type=int, default=3)
-        parser.add_argument("-b", "--batch_size", help="class threshold", type=int, default=32)
-        args = parser.parse_args()
-
-        # call the main function
-        main(args.data_path, args.output_path, (args.image_height, args.image_width, args.channels), args.batch_size)
-"""
+        callbacks=custom_callbacks + [tensorboad_cb, checkpointer_cb])

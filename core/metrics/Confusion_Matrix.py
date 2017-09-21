@@ -17,4 +17,4 @@ class Confusion_Matrix(Callback):
         recall = tp / (tp + fn + 1e-9)
         f1 = 2*((precision * recall)/(precision + recall + 1e-9))
 
-        print('#### val precision {0:1.4f} - val recall {1:1.4f} - val f1 {2:1.4f}'.format(precision, recall, f1) )
+        print('\n#### val precision {0:1.4f} - val recall {1:1.4f} - val f1 {2:1.4f}'.format(precision, recall, f1) )
