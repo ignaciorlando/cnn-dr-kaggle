@@ -31,12 +31,13 @@ def build(image_size, config):
     x = model.input
     y = model.output
     y = Flatten()(y)
-    #y = BatchNormalization(axis=1)(y)
+    if 'last-conv' in batch_normalizations:
+        y = BatchNormalization()(y)
 
     # first fully connected module
     y = Dense(4096)(y)
     if 'fc' in batch_normalizations:
-        y = BatchNormalization(axis=1)(y)
+        y = BatchNormalization()(y)
     y = Activation('relu')(y)
     if dropout_prob > 0.0:
         y = Dropout(dropout_prob)(y)
@@ -44,7 +45,7 @@ def build(image_size, config):
     # second fully connected module
     y = Dense(4096)(y)
     if 'fc' in batch_normalizations:
-        y = BatchNormalization(axis=1)(y)
+        y = BatchNormalization()(y)
     y = Activation('relu')(y)
     if dropout_prob > 0.0:
         y = Dropout(dropout_prob)(y)

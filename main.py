@@ -117,6 +117,7 @@ def main(input_data_path, output_path, config_file):
                                                                image_shape[0])
     # compute statistics for normalization
     train_data_generator.fit(X_subset)
+    validation_data_generator.fit(X_subset)
 
     # create output directory if it does not exist
     if not path.exists(output_path):

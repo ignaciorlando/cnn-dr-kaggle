@@ -36,6 +36,8 @@ def get_image_data_generator(data_type, config):
     else: # data_type == "validation" or data_type == "test"
         # datagen will be only rescale
         datagen = ImageDataGenerator(
+            featurewise_center=bool(config['featurewise_center']),
+            featurewise_std_normalization=bool(config['featurewise_std_normalization']),
             rescale=float(config['rescale'])
             )
 
