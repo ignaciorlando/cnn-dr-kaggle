@@ -130,10 +130,10 @@ def main(input_data_path, output_path, config_file):
     # TRAIN THE MODEL
     model.fit_generator(
         train_generator,
-        steps_per_epoch=train_generator.samples // training_batch_size,
+        steps_per_epoch=(train_generator.samples // training_batch_size) * float(config['training']['steps_per_epoch_coefficient']),
         epochs=int(config['training']['epochs']),
         validation_data=validation_generator,
-        validation_steps= validation_generator.samples // validation_batch_size,
+        validation_steps= (validation_generator.samples // validation_batch_size),
         class_weight=class_weights,
         callbacks=[Confusion_Matrix()] + [tensorboad_cb])
 

@@ -25,20 +25,20 @@ def get_image_data_generator(data_type, config):
         datagen = ImageDataGenerator(
             # For more information about these parameters
             # visit: https://keras.io/preprocessing/image/
-            featurewise_center=bool(config['featurewise_center']),
-            featurewise_std_normalization=bool(config['featurewise_std_normalization']),
-            fill_mode=config['fill_mode'],
-            cval=float(config['cval']),
-            horizontal_flip=bool(config['horizontal_flip']),
-            vertical_flip=bool(config['vertical_flip']),
-            rescale=float(config['rescale'])
+            featurewise_center = (config['featurewise_center']=='True'),
+            featurewise_std_normalization = (config['featurewise_std_normalization']=='True'),
+            fill_mode = config['fill_mode'],
+            cval = float(config['cval']),
+            horizontal_flip = (config['horizontal_flip'] =='True'),
+            vertical_flip = (config['vertical_flip'] == 'True'),
+            rescale = float(config['rescale'])
             )
     else: # data_type == "validation" or data_type == "test"
         # datagen will be only rescale
         datagen = ImageDataGenerator(
-            featurewise_center=bool(config['featurewise_center']),
-            featurewise_std_normalization=bool(config['featurewise_std_normalization']),
-            rescale=float(config['rescale'])
+            featurewise_center = (config['featurewise_center']=='True'),
+            featurewise_std_normalization = (config['featurewise_std_normalization']=='True'),
+            rescale = float(config['rescale'])
             )
 
     # return our datagen object
