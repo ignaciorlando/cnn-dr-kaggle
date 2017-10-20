@@ -8,7 +8,11 @@ from core.metrics.Confusion_Matrix import Confusion_Matrix
 
 from configparser import ConfigParser
 
+import csv
+
 from core.models import vgg16
+from core.preprocess.encode_training_data import initialize_dictionary_from_file
+from keras.models import load_model #https://stackoverflow.com/questions/45393429/keras-how-to-save-model-and-continue-training
 from keras.optimizers import SGD
 from core.augmentation import data_augmentation
 from core.preprocess import load_pickle_subset
@@ -40,6 +44,10 @@ def main(input_data_path, output_path, config_file):
 
     # get the name of the experiment
     name_experiment = ntpath.basename(config_file)[:-4]
+    # get the name of the pretrained weights
+    pretrained_weights_name = name_experiment + '_best_weights.h5'
+    # get the log filename
+    log_filename = name_experiment + '_log.csv'
 
     # append the name of the configuration file to the output path
     output_path = path.join(output_path, name_experiment)
@@ -59,12 +67,34 @@ def main(input_data_path, output_path, config_file):
     elif config['architecture']['architecture']=='resnet':
         pass
 
+    # initialize the CNN model...
+    if path.exists(path.join(output_path, pretrained_weights_name)):
+        # ... from existing weights
+        model.load_weights(path.join(output_path, pretrained_weights_name)) 
+
+    # if csv log exists...
+    if path.exists(path.join(output_path, log_filename)):
+        previous_log = initialize_dictionary_from_file(path.join(output_path, log_filename))
+    else:
+        previous_log = None
+
     # initialize the optimizer
     if config['optimizer']['optimizer']=='SGD':
-        optimizer = SGD(lr=float(config['optimizer']['lr']),
-                        decay=float(config['optimizer']['decay']),
-                        momentum=float(config['optimizer']['momentum']),
-                        nesterov=(config['optimizer']['nesterov']=='True'))
+        # parse SGD default parameters from config file
+        lr = float(config['optimizer']['lr'])
+        decay = float(config['optimizer']['decay'])
+        momentum = float(config['optimizer']['momentum'])
+        nesterov = (config['optimizer']['nesterov']=='True')
+        # default initialization in 0
+        initial_epoch = 0
+        # if not loading weights...
+        if not previous_log is None:
+            # compute the corresponding learning rate based on last epoch
+            epochs = list(previous_log.keys())
+            initial_epoch = int(epochs[-1])
+            lr *= (1. / (1. + decay * initial_epoch))
+        # initialize SGD
+        optimizer = SGD(lr=lr, decay=decay, momentum=momentum, nesterov=nesterov)
 
     # assign evaluation metrics
     metrics = []
@@ -116,9 +146,12 @@ def main(input_data_path, output_path, config_file):
     makedirs(tensorboard_path)
     tensorboad_cb = TensorBoard(log_dir=tensorboard_path)
 
+    # csvlogger callback
+    csvlogger = CSVLogger(filename=path.join(output_path, log_filename), separator=',')
+
     # checkpoint callback
-    checkpointer = ModelCheckpoint(filepath=path.join(output_path, name_experiment + '_best_weights.h5'), 
-                                   verbose=1, monitor='val_loss', mode='auto', save_best_only=True)
+    checkpointer = ModelCheckpoint(filepath=path.join(output_path, pretrained_weights_name), 
+                                   verbose=0, monitor='val_loss', mode='auto', save_best_only=False, save_weights_only=True)
 
     # load pickles for computing statistics
     X_subset, y_labels = load_pickle_subset.load_pickle_subset(path.join(input_data_path, 'training'), 
@@ -140,12 +173,13 @@ def main(input_data_path, output_path, config_file):
     # TRAIN THE MODEL
     model.fit_generator(
         train_generator,
-        steps_per_epoch=(train_generator.samples // training_batch_size) * float(config['training']['steps_per_epoch_coefficient']),
+        steps_per_epoch= (train_generator.samples // training_batch_size) * float(config['training']['steps_per_epoch_coefficient']),
         epochs=int(config['training']['epochs']),
         validation_data=validation_generator,
         validation_steps= (validation_generator.samples // validation_batch_size),
         class_weight=class_weights,
-        callbacks=[Confusion_Matrix()] + [tensorboad_cb, checkpointer])
+        callbacks=[Confusion_Matrix()] + [tensorboad_cb, checkpointer, csvlogger],
+        initial_epoch = initial_epoch)
 
     # SAVE THE WEIGHTS
     model.save_weights(path.join(output_path, model.name + '.h5'))
