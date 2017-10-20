@@ -12,7 +12,7 @@ from core.models import vgg16
 from keras.optimizers import SGD
 from core.augmentation import data_augmentation
 from core.preprocess import load_pickle_subset
-from keras.callbacks import TensorBoard, CSVLogger
+from keras.callbacks import TensorBoard, CSVLogger, ModelCheckpoint
 from shutil import rmtree
 from numpy import random
 import ntpath
@@ -38,8 +38,11 @@ def main(input_data_path, output_path, config_file):
     seed = 7
     random.seed(seed)
 
+    # get the name of the experiment
+    name_experiment = ntpath.basename(config_file)[:-4]
+
     # append the name of the configuration file to the output path
-    output_path = path.join(output_path, ntpath.basename(config_file)[:-4])
+    output_path = path.join(output_path, name_experiment)
 
     # read the configuration file    
     config = ConfigParser()
@@ -104,12 +107,18 @@ def main(input_data_path, output_path, config_file):
         classes=classes,
         class_mode=class_mode)
 
-    # initialize callbacks
+    # initialize callbacks...
+
+    # tensorboard callback
     tensorboard_path = output_path
     if path.exists(tensorboard_path):
         rmtree(tensorboard_path)
     makedirs(tensorboard_path)
     tensorboad_cb = TensorBoard(log_dir=tensorboard_path)
+
+    # checkpoint callback
+    checkpointer = ModelCheckpoint(filepath=path.join(output_path, name_experiment + '_best_weights.h5'), 
+                                   verbose=1, monitor='val_loss', mode='auto', save_best_only=True)
 
     # load pickles for computing statistics
     X_subset, y_labels = load_pickle_subset.load_pickle_subset(path.join(input_data_path, 'training'), 
@@ -136,7 +145,7 @@ def main(input_data_path, output_path, config_file):
         validation_data=validation_generator,
         validation_steps= (validation_generator.samples // validation_batch_size),
         class_weight=class_weights,
-        callbacks=[Confusion_Matrix()] + [tensorboad_cb])
+        callbacks=[Confusion_Matrix()] + [tensorboad_cb, checkpointer])
 
     # SAVE THE WEIGHTS
     model.save_weights(path.join(output_path, model.name + '.h5'))
